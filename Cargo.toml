@@ -1,0 +1,17 @@
+[package]
+name = "deep_learning_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ndarray = "0.15"
+rand = "0.8"
+num-traits = "0.2"
+
+[lib]
+name = "deep_learning_rust"
+path = "src/lib.rs"
+
+[[bin]]
+name = "deep_learning_rust_bin"
+path = "src/main.rs"
