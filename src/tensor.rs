@@ -5,11 +5,12 @@ use rand::Rng;
 
 pub struct Tensor {
     pub data: Array2<Float>,
+    pub grad: Option<Array2<Float>>,
 }
 
 impl Tensor {
     pub fn new(data: Array2<Float>) -> Self {
-        Self { data }
+        Self { data, grad: None }
     }
 
     pub fn shape(&self) -> (usize, usize) {
@@ -22,12 +23,13 @@ impl Tensor {
         let arr = Array2::from_shape_fn((rows, cols), |_| {
             rng.gen_range(0.0 as Float..1.0 as Float)
         });
-        Tensor { data: arr }
+        Tensor { data: arr, grad: None }
     }
 
     pub fn zeros(rows: usize, cols: usize) -> Self {
         Tensor {
             data: Array2::zeros((rows, cols)),
+            grad: None,
         }
     }
 }

@@ -28,9 +28,10 @@ impl Layer for Dense {
     fn backward(&mut self, input: &Tensor, grad_output: &Tensor) -> Tensor {
         let grad_weights = input.data.t().dot(&grad_output.data);
         let grad_bias = grad_output.data.sum_axis(ndarray::Axis(0)).insert_axis(ndarray::Axis(0));
-        self.weights.data = &self.weights.data - &(grad_weights * 0.001 as Float);
-        self.bias.data = &self.bias.data - &(grad_bias * 0.001 as Float);
-        Tensor::new(grad_output.data.dot(&self.weights.data.t()))
+        self.weights.grad = Some(grad_weights.clone());
+        self.bias.grad = Some(grad_bias.clone());
+        let grad_input = grad_output.data.dot(&self.weights.data.t());
+        Tensor::new(grad_input)
     }
 }
 
