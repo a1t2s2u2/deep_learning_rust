@@ -1,9 +1,13 @@
+use std::any::Any;
 use crate::Float;
 use crate::tensor::Tensor;
 
 pub trait Layer {
     fn forward(&mut self, input: &Tensor) -> Tensor;
     fn backward(&mut self, input: &Tensor, grad_output: &Tensor) -> Tensor;
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
+    fn update_parameters(&mut self, _learning_rate: f32) {} // default: do nothing
 }
 
 pub struct Dense {
@@ -34,6 +38,23 @@ impl Layer for Dense {
         let grad_input = grad_output.data.dot(&self.weights.data.t());
         Tensor::new(grad_input)
     }
+    
+    fn update_parameters(&mut self, learning_rate: f32) {
+        if let Some(ref grad_w) = self.weights.grad {
+            self.weights.data = &self.weights.data - &(grad_w * learning_rate);
+        }
+        if let Some(ref grad_b) = self.bias.grad {
+            self.bias.data = &self.bias.data - &(grad_b * learning_rate);
+        }
+    }
+    
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
 }
 
 pub struct ReLU;
@@ -53,5 +74,13 @@ impl Layer for ReLU {
     fn backward(&mut self, input: &Tensor, grad_output: &Tensor) -> Tensor {
         let grad = input.data.mapv(|x| if x > 0.0 as Float { 1.0 as Float } else { 0.0 as Float });
         Tensor::new(&grad * &grad_output.data)
+    }
+    
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
     }
 }

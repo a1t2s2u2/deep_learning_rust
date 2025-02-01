@@ -2,6 +2,7 @@ use crate::Float;
 use ndarray::Array2;
 use rand::Rng;
 
+#[derive(Clone)]
 pub struct Tensor {
     pub data: Array2<Float>,
     pub grad: Option<Array2<Float>>,
