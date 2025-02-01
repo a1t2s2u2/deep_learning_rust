@@ -7,7 +7,7 @@ pub trait Layer {
     fn backward(&mut self, input: &Tensor, grad_output: &Tensor) -> Tensor;
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
-    fn update_parameters(&mut self, _learning_rate: f32) {} // default: do nothing
+    fn update_parameters(&mut self, _learning_rate: Float) {} // default: do nothing
 }
 
 pub struct Dense {
@@ -39,7 +39,7 @@ impl Layer for Dense {
         Tensor::new(grad_input)
     }
     
-    fn update_parameters(&mut self, learning_rate: f32) {
+    fn update_parameters(&mut self, learning_rate: Float) {
         if let Some(ref grad_w) = self.weights.grad {
             self.weights.data = &self.weights.data - &(grad_w * learning_rate);
         }

@@ -1,7 +1,7 @@
 extern crate deep_learning_rust;
 use deep_learning_rust::{array, Array2, Float};
 use deep_learning_rust::tensor::Tensor;
-use deep_learning_rust::layer::{Layer, Dense, ReLU};
+use deep_learning_rust::layer::{Dense, ReLU};
 use deep_learning_rust::loss;
 use deep_learning_rust::model::Model;
 
@@ -30,7 +30,7 @@ fn main() {
     // 第3層: 隠れ層次元4 -> 出力次元2
     model.add_layer(Dense::new(4, 2));
     
-    let learning_rate: f32 = 0.001;
+    let learning_rate: Float = 0.001;
     let epochs = 1000;
     
     for epoch in 0..epochs {

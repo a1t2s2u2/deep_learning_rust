@@ -1,4 +1,4 @@
-pub type Float = f32;
+pub type Float = f64;
 pub mod tensor;
 pub mod layer;
 pub mod loss;
