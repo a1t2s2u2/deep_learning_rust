@@ -1,4 +1,5 @@
-use crate::tensor::{Float, Tensor};
+use crate::Float;
+use crate::tensor::Tensor;
 
 pub trait Layer {
     fn forward(&mut self, input: &Tensor) -> Tensor;

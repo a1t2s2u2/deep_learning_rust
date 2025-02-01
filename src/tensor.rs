@@ -1,5 +1,4 @@
-pub type Float = f32;
-
+use crate::Float;
 use ndarray::Array2;
 use rand::Rng;
 
@@ -21,15 +20,12 @@ impl Tensor {
     pub fn random(rows: usize, cols: usize) -> Self {
         let mut rng = rand::thread_rng();
         let arr = Array2::from_shape_fn((rows, cols), |_| {
-            rng.gen_range(0.0 as Float..1.0 as Float)
+            rng.gen_range(0.0 as Float .. 1.0 as Float)
         });
-        Tensor { data: arr, grad: None }
+        Self { data: arr, grad: None }
     }
 
     pub fn zeros(rows: usize, cols: usize) -> Self {
-        Tensor {
-            data: Array2::zeros((rows, cols)),
-            grad: None,
-        }
+        Self { data: Array2::zeros((rows, cols)), grad: None }
     }
 }
