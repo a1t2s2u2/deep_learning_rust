@@ -1,7 +1,7 @@
 extern crate deep_learning_rust;
 use deep_learning_rust::{array, Array2, Float};
 use deep_learning_rust::tensor::Tensor;
-use deep_learning_rust::layer::{Dense, ReLU};
+use deep_learning_rust::layer::{Dense, ReLU, Dropout};
 use deep_learning_rust::model::Model;
 use deep_learning_rust::loss;
 
@@ -23,9 +23,13 @@ fn main() {
     
     // モデルの定義
     let mut model = Model::new(loss::mse_loss, loss::mse_loss_grad);
-    model.add_layer(Dense::new(3, 4));
+    model.add_layer(Dense::new(3, 10));
+    model.add_layer(Dropout::new(0.15));
     model.add_layer(ReLU::new());
-    model.add_layer(Dense::new(4, 2));
+    model.add_layer(Dense::new(10, 5));
+    model.add_layer(Dropout::new(0.15));
+    model.add_layer(ReLU::new());
+    model.add_layer(Dense::new(5, 2));
     
     let learning_rate: Float = 0.0005;
     let epochs = 1000;

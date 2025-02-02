@@ -7,7 +7,7 @@ pub trait Layer {
     fn backward(&mut self, input: &Tensor, grad_output: &Tensor) -> Tensor;
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
-    fn update_parameters(&mut self, _learning_rate: Float) {} // default: do nothing
+    fn update_parameters(&mut self, _learning_rate: Float) {}
 }
 
 pub struct Dense {
@@ -45,6 +45,53 @@ impl Layer for Dense {
         }
         if let Some(ref grad_b) = self.bias.grad {
             self.bias.data = &self.bias.data - &(grad_b * learning_rate);
+        }
+    }
+    
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
+
+pub struct Dropout {
+    pub prob: Float,
+    mask: Option<Tensor>,
+}
+
+impl Dropout {
+    pub fn new(prob: Float) -> Self {
+        Self {
+            prob,
+            mask: None,
+        }
+    }
+}
+
+impl Layer for Dropout {
+    fn forward(&mut self, input: &Tensor) -> Tensor {
+        let keep_prob: f64 = 1.0 - self.prob;
+        let (rows, cols) = input.data.dim();
+        let rand_tensor: Tensor = Tensor::random(rows, cols);
+        let mask_data = rand_tensor.data.mapv(|x| {
+            if x < keep_prob {
+                1.0 / keep_prob
+            } else {
+                0.0
+            }
+        });
+        self.mask = Some(Tensor::new(mask_data.clone()));
+        Tensor::new(&input.data * &mask_data)
+    }
+
+    fn backward(&mut self, _input: &Tensor, grad_output: &Tensor) -> Tensor {
+        if let Some(ref mask) = self.mask {
+            Tensor::new(&grad_output.data * &mask.data)
+        } else {
+            panic!("Dropout mask not set during forward pass");
         }
     }
     
