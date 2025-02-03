@@ -131,3 +131,32 @@ impl Layer for ReLU {
         self
     }
 }
+
+pub struct Sigmoid;
+
+impl Sigmoid {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Layer for Sigmoid {
+    fn forward(&mut self, input: &Tensor) -> Tensor {
+        let data = input.data.mapv(|x| 1.0 / (1.0 + (-x).exp()));
+        Tensor::new(data)
+    }
+
+    fn backward(&mut self, input: &Tensor, grad_output: &Tensor) -> Tensor {
+        let sigmoid = input.data.mapv(|x| 1.0 / (1.0 + (-x).exp()));
+        let grad = sigmoid.mapv(|s| s * (1.0 - s));
+        Tensor::new(&grad * &grad_output.data)
+    }
+    
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
