@@ -160,3 +160,32 @@ impl Layer for Sigmoid {
         self
     }
 }
+
+pub struct Tanh;
+
+impl Tanh {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Layer for Tanh {
+    fn forward(&mut self, input: &Tensor) -> Tensor {
+        let data = input.data.mapv(|x| x.tanh());
+        Tensor::new(data)
+    }
+
+    fn backward(&mut self, input: &Tensor, grad_output: &Tensor) -> Tensor {
+        let tanh_val = input.data.mapv(|x| x.tanh());
+        let grad = tanh_val.mapv(|t| 1.0 - t * t);
+        Tensor::new(&grad * &grad_output.data)
+    }
+    
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
