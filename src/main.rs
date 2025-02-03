@@ -22,7 +22,7 @@ fn main() {
     let input: Tensor = Tensor::new(input_data);
     
     // モデルの定義
-    let mut model = Model::new(loss::mse_loss);
+    let mut model = Model::new(loss::binary_cross_entropy_loss);
     model.add_layer(Dense::new(3, 10));
     model.add_layer(Dropout::new(0.15));
     model.add_layer(ReLU::new());
