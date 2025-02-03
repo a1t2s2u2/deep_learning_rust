@@ -22,7 +22,7 @@ fn main() {
     let input: Tensor = Tensor::new(input_data);
     
     // モデルの定義
-    let mut model = Model::new(loss::mse_loss, loss::mse_loss_grad);
+    let mut model = Model::new(loss::mse_loss);
     model.add_layer(Dense::new(3, 10));
     model.add_layer(Dropout::new(0.15));
     model.add_layer(ReLU::new());
@@ -38,7 +38,7 @@ fn main() {
         // 順伝播処理
         let output = model.forward(&input);
         // 損失の計算
-        let loss_val = (model.loss_fn)(&output, &target_data);
+        let (loss_val, _) = (model.loss_fn)(&output, &target_data);
         // 逆伝播処理とパラメータ更新
         model.backward(&target_data, learning_rate);
         

@@ -6,18 +6,16 @@ use crate::Array2;
 pub struct Model {
     pub layers: Vec<Box<dyn Layer>>,
     last_activations: Option<Vec<Tensor>>,
-    pub loss_fn: fn(&Tensor, &Array2<Float>) -> Float,
-    pub loss_grad_fn: fn(&Tensor, &Array2<Float>) -> Array2<Float>,
+    pub loss_fn: fn(&Tensor, &Array2<Float>) -> (Float, Array2<Float>),
 }
 
 impl Model {
     // 新しいモデルを生成する
-    pub fn new(loss_fn: fn(&Tensor, &Array2<Float>) -> Float, loss_grad_fn: fn(&Tensor, &Array2<Float>) -> Array2<Float>) -> Self {
+    pub fn new(loss_fn: fn(&Tensor, &Array2<Float>) -> (Float, Array2<Float>)) -> Self {
         Self {
             layers: Vec::new(),
             last_activations: None,
             loss_fn,
-            loss_grad_fn,
         }
     }
 
@@ -43,7 +41,8 @@ impl Model {
     pub fn backward(&mut self, target: &Array2<Float>, learning_rate: Float) {
         if let Some(activations) = self.last_activations.take() {
             let output = activations.last().unwrap();
-            let mut grad = Tensor::new((self.loss_grad_fn)(output, target));
+            let (_, grad_array) = (self.loss_fn)(output, target);
+            let mut grad = Tensor::new(grad_array);
             for (layer, activation) in self.layers.iter_mut().rev().zip(activations.iter().rev().skip(1)) {
                 grad = layer.backward(activation, &grad);
                 layer.update_parameters(learning_rate.into());
