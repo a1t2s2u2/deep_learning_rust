@@ -1,9 +1,9 @@
 extern crate deep_learning_rust;
 use deep_learning_rust::{array, Array2, Float};
 use deep_learning_rust::tensor::Tensor;
-use deep_learning_rust::layer::{Dense, Dropout, ReLU, Sigmoid, Tanh};
+use deep_learning_rust::layer::*;
+use deep_learning_rust::loss::*;
 use deep_learning_rust::model::Model;
-use deep_learning_rust::loss;
 
 fn main() {
     // 入力値と正解値を定義
@@ -22,7 +22,7 @@ fn main() {
     let input: Tensor = Tensor::new(input_data);
     
     // モデルの定義
-    let mut model = Model::new(loss::hinge_loss);
+    let mut model = Model::new(hinge_loss);
     model.add_layer(Dense::new(3, 10));
     model.add_layer(Dropout::new(0.15));
     model.add_layer(Tanh::new());
