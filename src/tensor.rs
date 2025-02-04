@@ -29,4 +29,8 @@ impl Tensor {
     pub fn zeros(rows: usize, cols: usize) -> Self {
         Self { data: Array2::zeros((rows, cols)), grad: None }
     }
+
+    pub fn ones(rows: usize, cols: usize) -> Self {
+        Self { data: Array2::ones((rows, cols)), grad: None }
+    }
 }
