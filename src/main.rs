@@ -25,10 +25,10 @@ fn main() {
     let mut model = Model::new(hinge_loss);
     model.add_layer(Dense::new(3, 10));
     model.add_layer(Dropout::new(0.15));
-    model.add_layer(Tanh::new());
+    model.add_layer(Softmax::new());
     model.add_layer(Dense::new(10, 5));
     model.add_layer(Dropout::new(0.15));
-    model.add_layer(Tanh::new());
+    model.add_layer(Softmax::new());
     model.add_layer(Dense::new(5, 2));
     
     let learning_rate: Float = 0.0005;

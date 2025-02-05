@@ -189,3 +189,50 @@ impl Layer for Tanh {
         self
     }
 }
+
+pub struct Softmax;
+
+impl Softmax {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl Layer for Softmax {
+    fn forward(&mut self, input: &Tensor) -> Tensor {
+        // Numerical stability: subtract the row-wise max
+        let max_per_row = input.data.map_axis(ndarray::Axis(1), |row| row.fold(std::f64::NEG_INFINITY, |a, &b| a.max(b)));
+        let max_broadcast = max_per_row.insert_axis(ndarray::Axis(1));
+        let shifted = &input.data - &max_broadcast;
+        let exp_data = shifted.mapv(|x| x.exp());
+        let sum_per_row = exp_data.sum_axis(ndarray::Axis(1));
+        let sum_broadcast = sum_per_row.insert_axis(ndarray::Axis(1));
+        let softmax = &exp_data / &sum_broadcast;
+        Tensor::new(softmax)
+    }
+
+    fn backward(&mut self, input: &Tensor, grad_output: &Tensor) -> Tensor {
+        // Compute softmax output first for the given input
+        let max_per_row = input.data.map_axis(ndarray::Axis(1), |row| row.fold(std::f64::NEG_INFINITY, |a, &b| a.max(b)));
+        let max_broadcast = max_per_row.insert_axis(ndarray::Axis(1));
+        let shifted = &input.data - &max_broadcast;
+        let exp_data = shifted.mapv(|x| x.exp());
+        let sum_per_row = exp_data.sum_axis(ndarray::Axis(1));
+        let sum_broadcast = sum_per_row.insert_axis(ndarray::Axis(1));
+        let s = &exp_data / &sum_broadcast;
+
+        // For each row, calculate: grad_input = s * (grad_output - sum(s * grad_output))
+        let dot = (&s * &grad_output.data).sum_axis(ndarray::Axis(1));
+        let dot_broadcast = dot.insert_axis(ndarray::Axis(1));
+        let grad_input = &s * (&grad_output.data - &dot_broadcast);
+        Tensor::new(grad_input)
+    }
+    
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
